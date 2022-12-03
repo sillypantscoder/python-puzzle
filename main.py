@@ -8,7 +8,7 @@ import puzzles
 SCREENSIZE = [640, 480]
 screen = pygame.display.set_mode(SCREENSIZE, pygame.RESIZABLE)
 
-currentpuzzle = puzzles.Level1()
+currentpuzzle = puzzles.Level3()
 def getkey(k):
 	return False or (pygame.key.get_pressed()[k])
 
