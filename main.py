@@ -9,6 +9,8 @@ SCREENSIZE = [640, 480]
 screen = pygame.display.set_mode(SCREENSIZE, pygame.RESIZABLE)
 
 currentpuzzle = puzzles.Level1()
+def getkey(k):
+	return False or (pygame.key.get_pressed()[k])
 
 c = pygame.time.Clock()
 running = True
@@ -19,9 +21,14 @@ while running:
 		elif event.type == pygame.VIDEORESIZE:
 			SCREENSIZE = event.size
 			screen = pygame.display.set_mode(SCREENSIZE, pygame.RESIZABLE)
-		elif event.type == pygame.MOUSEDOWN:
-			currentpuzzle.handleclick(event.pos[0], event.pos[1])
+		elif event.type == pygame.MOUSEBUTTONDOWN:
+			currentpuzzle.onmousedown(event.pos[0], event.pos[1])
+		elif event.type == pygame.MOUSEBUTTONUP:
+			currentpuzzle.onmouseup(event.pos[0], event.pos[1])
+		elif event.type == pygame.MOUSEMOTION:
+			currentpuzzle.onmousemove(event.pos[0], event.pos[1], False or pygame.mouse.get_pressed()[0])
 	screen.fill((255, 255, 255))
-	screen.blit(currentpuzzle.getFrame(*SCREENSIZE), (0, 0))
+	screen.blit(currentpuzzle.getFrame(*SCREENSIZE, getkey), (0, 0))
+	currentpuzzle = currentpuzzle.getNew()
 	pygame.display.flip()
 	c.tick(60)
