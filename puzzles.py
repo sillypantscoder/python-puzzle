@@ -141,3 +141,96 @@ class Level5(PlatformerPuzzle):
 		super().__init__();
 		self.level = [" =========", "  #  =   =", "====   ^", "^    ^ ^ =", "========", "       ^ ===", "", "", "        +"]
 		self.levelno = 5
+		self.next = Level6
+
+class Level6(Puzzle):
+	def __init__(self):
+		self.gridsize = 7
+		self.grid = [[0 for x in range(self.gridsize)] for y in range(self.gridsize)]
+		self.lastsize = [0, 0]
+		self.timer = 100
+	def getFrame(self, width, height, getkey):
+		# Return a pygame surface
+		r = pygame.Surface((width, height))
+		r.fill((255, 255, 255))
+		s = pygame.font.SysFont(pygame.font.get_default_font(), (width + height) // 10).render("6", True, (0, 0, 0))
+		r.blit(s, ((r.get_width() / 2) - (s.get_width() / 2), (r.get_height() / 2) - (s.get_height() / 2)))
+		cellsize = [width / self.gridsize, height / self.gridsize]
+		for x in range(self.gridsize):
+			for y in range(self.gridsize):
+				cellrect = pygame.Rect(x * cellsize[0], y * cellsize[1], cellsize[0], cellsize[1])
+				if self.grid[x][y]:
+					pygame.draw.rect(r, (0, 0, 0), cellrect)
+				pygame.draw.rect(r, (0, 0, 0), cellrect, 5)
+		self.lastsize = [width, height]
+		return r
+	def onmouseup(self, x, y):
+		percent = [x / self.lastsize[0], y / self.lastsize[1]]
+		gridx = int(percent[0] * self.gridsize)
+		gridy = int(percent[1] * self.gridsize)
+		newcells = []
+		if gridx >= 0 and gridy >= 0 and gridx < self.gridsize and gridy < self.gridsize:
+			noitems = sum([sum(self.grid[x]) for x in range(len(self.grid))]) == 0
+			if noitems:
+				newcells.append((gridx, gridy))
+			othercells = [
+				# Knight jump
+				(gridx - 2, gridy - 1), (gridx - 2, gridy + 1),
+				(gridx + 2, gridy - 1), (gridx + 2, gridy + 1),
+				(gridx - 1, gridy - 2), (gridx - 1, gridy + 2),
+				(gridx + 1, gridy - 2), (gridx + 1, gridy + 2)
+			]
+			othercells = [p for p in othercells if p[0] >= 0 and p[1] >= 0 and p[0] < self.gridsize and p[1] < self.gridsize]
+			othercells = [self.grid[p[0]][p[1]] for p in othercells]
+			if 1 in othercells:
+				newcells.append((gridx, gridy))
+		for c in newcells:
+			self.grid[c[0]][c[1]] = 1
+	def getNew(self):
+		for x in range(len(self.grid)):
+			for y in range(len(self.grid[x])):
+				if self.grid[x][y] == 0:
+					return self
+		self.timer -= 1
+		if self.timer <= 0:
+			return Level7()
+		else:
+			return self
+
+class Level7(Puzzle):
+	def __init__(self):
+		f = open("stuff.txt", "w")
+		f.write("Please delete all of this text!")
+		f.close()
+		self.timer = 50
+	def getFrame(self, width, height, getkey):
+		texts = ["Look at the file:", "stuff.txt"]
+		font = pygame.font.SysFont(pygame.font.get_default_font(), (width + height) // 10)
+		texts = [font.render(t, True, (0, 0, 0)) for t in texts]
+		r = pygame.Surface((width, height))
+		r.fill((255, 255, 255))
+		cum_y = 0
+		for t in texts:
+			r.blit(t, ((r.get_width() / 2) - (t.get_width() / 2), cum_y))
+			cum_y += t.get_height()
+		return r
+	def getNew(self):
+		import os
+		if os.path.exists("stuff.txt"):
+			f = open("stuff.txt", "r")
+			t = f.read()
+			f.close()
+			if t == "":
+				self.timer -= 1
+				if self.timer <= 0:
+					os.remove("stuff.txt")
+					return Puzzle()
+				else:
+					return self
+			else:
+				return self
+		else:
+			f = open("stuff.txt", "w")
+			f.write("Please delete all of this text!\n(But don't delete the file itself)")
+			f.close()
+			return self
