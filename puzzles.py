@@ -145,7 +145,7 @@ class Level5(PlatformerPuzzle):
 
 class Level6(Puzzle):
 	def __init__(self):
-		self.gridsize = 7
+		self.gridsize = 5
 		self.grid = [[0 for x in range(self.gridsize)] for y in range(self.gridsize)]
 		self.lastsize = [0, 0]
 		self.timer = 100
@@ -199,38 +199,89 @@ class Level6(Puzzle):
 
 class Level7(Puzzle):
 	def __init__(self):
-		f = open("stuff.txt", "w")
-		f.write("Please delete all of this text!")
+		f = open("words", "r")
+		import random
+		self.targettext = random.choice(f.read().split("\n"))
 		f.close()
-		self.timer = 50
+		self.current_index = 0
+		self.timer = 0
 	def getFrame(self, width, height, getkey):
-		texts = ["Look at the file:", "stuff.txt"]
-		font = pygame.font.SysFont(pygame.font.get_default_font(), (width + height) // 10)
-		texts = [font.render(t, True, (0, 0, 0)) for t in texts]
+		# Render the text
 		r = pygame.Surface((width, height))
 		r.fill((255, 255, 255))
-		cum_y = 0
-		for t in texts:
-			r.blit(t, ((r.get_width() / 2) - (t.get_width() / 2), cum_y))
-			cum_y += t.get_height()
+		s = pygame.font.SysFont(pygame.font.get_default_font(), (width + height) // 10).render(self.targettext, True, (self.timer, self.timer, self.timer))
+		r.blit(s, (0, 0))
+		# Check for next key
+		if self.current_index < len(self.targettext):
+			if getkey(self.targettext[self.current_index].lower()):
+				self.current_index += 1
 		return r
 	def getNew(self):
-		import os
-		if os.path.exists("stuff.txt"):
-			f = open("stuff.txt", "r")
-			t = f.read()
-			f.close()
-			if t == "":
-				self.timer -= 1
-				if self.timer <= 0:
-					os.remove("stuff.txt")
-					return Puzzle()
-				else:
-					return self
+		if self.current_index >= len(self.targettext):
+			self.timer += 10
+			if self.timer >= 255:
+				return Level8()
 			else:
 				return self
 		else:
-			f = open("stuff.txt", "w")
-			f.write("Please delete all of this text!\n(But don't delete the file itself)")
-			f.close()
 			return self
+
+class Level8(Puzzle):
+	def __init__(self):
+		self.gridsize = 5
+		self.grid = [[0 for x in range(self.gridsize)] for y in range(self.gridsize)]
+		self.lastsize = [0, 0]
+		self.timer = 100
+		self.sym = None
+	def getFrame(self, width, height, getkey):
+		# Return a pygame surface
+		r = pygame.Surface((width, height))
+		r.fill((255, 255, 255))
+		s = pygame.font.SysFont(pygame.font.get_default_font(), (width + height) // 10).render("8", True, (0, 0, 0))
+		r.blit(s, ((r.get_width() / 2) - (s.get_width() / 2), (r.get_height() / 2) - (s.get_height() / 2)))
+		cellsize = [width / self.gridsize, height / self.gridsize]
+		for x in range(self.gridsize):
+			for y in range(self.gridsize):
+				cellrect = pygame.Rect(x * cellsize[0], y * cellsize[1], cellsize[0], cellsize[1])
+				if self.grid[x][y] == 1:
+					pygame.draw.rect(r, (0, 0, 0), cellrect)
+				elif self.grid[x][y] == 2:
+					pygame.draw.rect(r, (255, 0, 0), cellrect)
+				pygame.draw.rect(r, (0, 0, 0), cellrect, 5)
+		self.lastsize = [width, height]
+		return r
+	def onmouseup(self, x, y):
+		percent = [x / self.lastsize[0], y / self.lastsize[1]]
+		gridx = int(percent[0] * self.gridsize)
+		gridy = int(percent[1] * self.gridsize)
+		newcells = []
+		if gridx >= 0 and gridy >= 0 and gridx < self.gridsize and gridy < self.gridsize:
+			if self.sym == None:
+				self.grid[gridx][gridy] = 2
+				self.sym = [gridx, gridy]
+			else:
+				# Get opposite
+				if gridx == self.sym[1] and gridy == self.sym[0]:
+					self.grid[self.sym[0]][self.sym[1]] = 1
+					self.grid[gridx][gridy] = 1
+					self.sym = None
+	def getNew(self):
+		for x in range(len(self.grid)):
+			for y in range(len(self.grid[x])):
+				if self.grid[x][y] == 0:
+					return self
+		self.timer -= 1
+		if self.timer <= 0:
+			return Level9()
+		else:
+			return self
+
+class Level9(FlowFreePuzzle):
+	def __init__(self):
+		super().__init__();
+		self.gridsize = 4
+		self.flows = [
+			{"start": [0, 0], "end": [2, 2], "color": (255,   0,   0), "path": []},
+			{"start": [1, 0], "end": [2, 1], "color": (  0, 255, 255), "path": []},
+			{"start": [2, 0], "end": [0, 3], "color": (255, 255,   0), "path": []}
+		]

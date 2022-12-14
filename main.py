@@ -10,7 +10,8 @@ screen = pygame.display.set_mode(SCREENSIZE, pygame.RESIZABLE)
 
 currentpuzzle = puzzles.Level1()
 def getkey(k):
-	return False or (pygame.key.get_pressed()[k])
+	n = getattr(pygame, "K_" + k)
+	return False or (pygame.key.get_pressed()[n])
 
 c = pygame.time.Clock()
 running = True
