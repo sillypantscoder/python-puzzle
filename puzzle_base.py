@@ -100,6 +100,7 @@ class FlowFreePuzzle(Puzzle):
 		self.flowdrag = None
 		self.lastsize = [500, 500]
 		self.timer = 100
+		self.next = Puzzle
 	def getFrame(self, width, height, getkey):
 		self.lastsize = [width, height]
 		r = pygame.Surface((width, height))
@@ -160,6 +161,8 @@ class FlowFreePuzzle(Puzzle):
 				# continue normally
 				cflow = f + 0
 				self.flows[f]["path"] = []
+			elif len(self.flows[f]["path"]) > 0 and self.flows[f]["path"][-1] == currentcell:
+				cflow = f + 0
 		self.flowdrag = cflow
 	def onmousemove(self, x, y, clicking):
 		if clicking and self.flowdrag != None:
@@ -216,6 +219,6 @@ class FlowFreePuzzle(Puzzle):
 		# Done!
 		self.timer -= 1
 		if self.timer <= 0:
-			return Puzzle()
+			return self.next()
 		else:
 			return self

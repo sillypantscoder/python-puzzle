@@ -285,3 +285,30 @@ class Level9(FlowFreePuzzle):
 			{"start": [1, 0], "end": [2, 1], "color": (  0, 255, 255), "path": []},
 			{"start": [2, 0], "end": [0, 3], "color": (255, 255,   0), "path": []}
 		]
+		self.next = Level10
+
+class Level10(FlowFreePuzzle):
+	def __init__(self):
+		super().__init__();
+		self.gridsize = 6
+		self.flows = [
+			{"start": [0, 0], "end": [1, 5], "color": (255,   0, 255), "path": []},
+			{"start": [1, 4], "end": [5, 5], "color": (  0, 255, 255), "path": []},
+			{"start": [1, 0], "end": [1, 3], "color": (  0, 255,   0), "path": []},
+			{"start": [2, 0], "end": [5, 0], "color": (255,   0,   0), "path": []},
+			{"start": [3, 0], "end": [3, 2], "color": (255, 100,   0), "path": []},
+			{"start": [4, 0], "end": [4, 3], "color": (  0,   0, 255), "path": []}
+		]
+		self.next = Level11
+
+class Level11(FlowFreePuzzle):
+	def __init__(self):
+		super().__init__();
+		self.gridsize = 7
+		self.flows = [
+			{"start": [0, 0], "end": [6, 0], "color": (255,   0,   0), "path": []},
+			{"start": [1, 5], "end": [5, 0], "color": (  0, 255, 255), "path": []},
+			{"start": [1, 4], "end": [4, 4], "color": (255, 100,   0), "path": []},
+			{"start": [2, 1], "end": [2, 4], "color": (255, 255,   0), "path": []},
+			{"start": [4, 0], "end": [4, 3], "color": (255,   0, 255), "path": []}
+		]
